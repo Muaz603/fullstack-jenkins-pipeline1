@@ -51,7 +51,7 @@ pipeline {
                     for i in $(seq 1 15); do
                         echo "Attempt $i"
 
-                        if curl -sf http://localhost:5001/health; then
+                        if curl -sf http://172.17.0.1:5001/health; then
                             echo "Backend is healthy"
                             exit 0
                         fi
@@ -64,14 +64,13 @@ pipeline {
                     '''
                 }
             }
-        stage('Verify Student API') {
-            steps {
-                sh '''
-                curl http://localhost:5001/api/students
-                '''
+            stage('Verify Student API') {
+                steps {
+                    sh '''
+                    curl http://172.17.0.1:5001/api/students
+                    '''
+                }
             }
-        }
-    }
 
     post {
         success {
