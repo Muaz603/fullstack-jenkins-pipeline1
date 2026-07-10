@@ -3,12 +3,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout Source') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Verify Docker') {
             steps {
                 sh 'docker --version'
@@ -30,7 +24,7 @@ pipeline {
 
         stage('Verify Backend Health') {
             steps {
-                sh 'sleep 15'
+                sh 'sleep 20'
                 sh 'curl http://backend:5001/health'
             }
         }
