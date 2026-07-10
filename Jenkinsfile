@@ -9,7 +9,15 @@ pipeline {
                 sh 'docker-compose --version'
             }
         }
-
+        
+        stage('Cleanup') {
+            steps {
+                sh '''
+                docker-compose down || true
+                docker rm -f mysql-db backend frontend || true
+                '''
+            }
+        }
         stage('Build Images') {
             steps {
                 sh 'docker-compose build'
@@ -18,7 +26,11 @@ pipeline {
 
         stage('Deploy Application') {
             steps {
-                sh 'docker-compose up -d'
+                sh '''
+                docker-compose down || true
+                docker rm -f mysql-db backend frontend || true
+                docker-compose up -d
+                '''
             }
         }
 
