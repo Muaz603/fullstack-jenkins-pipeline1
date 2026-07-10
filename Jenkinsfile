@@ -43,34 +43,38 @@ pipeline {
                 '''
             }
         }
-            stage('Verify Backend Health') {
-                steps {
-                    sh '''
-                    set -x
 
-                    for i in $(seq 1 15); do
-                        echo "Attempt $i"
+        stage('Verify Backend Health') {
+            steps {
+                sh '''
+                set -x
 
-                        if curl -sf http://172.17.0.1:5001/health; then
-                            echo "Backend is healthy"
-                            exit 0
-                        fi
+                for i in $(seq 1 15); do
+                    echo "Attempt $i"
 
-                        sleep 5
-                    done
+                    if curl -sf http://172.17.0.1:5001/health; then
+                        echo "Backend is healthy"
+                        exit 0
+                    fi
 
-                    echo "Backend never became healthy"
-                    exit 1
-                    '''
-                }
+                    sleep 5
+                done
+
+                echo "Backend never became healthy"
+                exit 1
+                '''
             }
-            stage('Verify Student API') {
-                steps {
-                    sh '''
-                    curl http://172.17.0.1:5001/api/students
-                    '''
-                }
+        }
+
+        stage('Verify Student API') {
+            steps {
+                sh '''
+                curl http://172.17.0.1:5001/api/students
+                '''
             }
+        }
+
+    }   // <-- closes stages
 
     post {
         success {
