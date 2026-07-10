@@ -33,21 +33,37 @@ pipeline {
             }
         }
 
-        stage('Verify Backend Health') {
+        stage('Debug') {
             steps {
                 sh '''
-                for i in {1..15}; do
-                    if curl -sf http://localhost:5001/health; then
-                        exit 0
-                    fi
-                    sleep 5
-                done
-
-                exit 1
+                pwd
+                ls -la
+                echo "---- Jenkinsfile in workspace ----"
+                sed -n '1,120p' Jenkinsfile
                 '''
             }
         }
+            stage('Verify Backend Health') {
+                steps {
+                    sh '''
+                    set -x
 
+                    for i in $(seq 1 15); do
+                        echo "Attempt $i"
+
+                        if curl -sf http://localhost:5001/health; then
+                            echo "Backend is healthy"
+                            exit 0
+                        fi
+
+                        sleep 5
+                    done
+
+                    echo "Backend never became healthy"
+                    exit 1
+                    '''
+                }
+            }
         stage('Verify Student API') {
             steps {
                 sh '''
