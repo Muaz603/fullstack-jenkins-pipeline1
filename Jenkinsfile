@@ -18,6 +18,7 @@ pipeline {
                 '''
             }
         }
+
         stage('Build Images') {
             steps {
                 sh 'docker-compose build'
@@ -27,11 +28,19 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 sh '''
+                docker-compose up -d
+                '''
+            }
+        }
+
+        stage('Verify Backend Health') {
+            steps {
+                sh '''
                 for i in {1..15}; do
-                if curl -sf http://localhost:5001/health; then
-                    exit 0
-                fi
-                sleep 5
+                    if curl -sf http://localhost:5001/health; then
+                        exit 0
+                    fi
+                    sleep 5
                 done
 
                 exit 1
@@ -39,16 +48,11 @@ pipeline {
             }
         }
 
-        stage('Verify Backend Health') {
-            steps {
-                sh 'sleep 20'
-                sh 'curl http://localhost:5001/health'
-            }
-        }
-
         stage('Verify Student API') {
             steps {
-                sh 'curl http://localhost:5001/api/students'
+                sh '''
+                curl http://localhost:5001/api/students
+                '''
             }
         }
     }
