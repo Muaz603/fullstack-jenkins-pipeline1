@@ -9,7 +9,7 @@ pipeline {
                 sh 'docker-compose --version'
             }
         }
-        
+
         stage('Cleanup') {
             steps {
                 sh '''
@@ -27,9 +27,14 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 sh '''
-                docker-compose down || true
-                docker rm -f mysql-db backend frontend || true
-                docker-compose up -d
+                for i in {1..15}; do
+                if curl -sf http://localhost:5001/health; then
+                    exit 0
+                fi
+                sleep 5
+                done
+
+                exit 1
                 '''
             }
         }
@@ -37,13 +42,13 @@ pipeline {
         stage('Verify Backend Health') {
             steps {
                 sh 'sleep 20'
-                sh 'curl http://backend:5001/health'
+                sh 'curl http://localhost:5001/health'
             }
         }
 
         stage('Verify Student API') {
             steps {
-                sh 'curl http://backend:5001/api/students'
+                sh 'curl http://localhost:5001/api/students'
             }
         }
     }
